@@ -1,7 +1,7 @@
 # ArgMacros
 
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://zachmatson.github.io/ArgMacros.jl/stable)
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://zachmatson.github.io/ArgMacros.jl/stable)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://zachmatson.github.io/ArgMacros.jl/dev)
 
 Performant, macro-only, Julia package for parsing command line arguments.    
 Uses macros to generate the parsing code within your main function, directly storing
