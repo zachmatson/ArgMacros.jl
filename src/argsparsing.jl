@@ -100,7 +100,7 @@ end
 Convert string to Number type with parse or other type with direct conversion.
 Quit program if s is nothing or conversion fails.
 """
-function _converttype!(::Type{T}, s::Union{AbstractString, Nothing}, name::String)::T where T
+function _converttype!(::Type{T}, s::Union{String, Nothing}, name::String)::T where T
     if isnothing(s)
         _quit_try_help("Argument $name missing")
     end

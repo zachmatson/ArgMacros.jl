@@ -15,8 +15,6 @@ Enforce argument declaration ordering:
 Throw `ArgumentError` if ordering violates this rule.
 """
 function _validateorder(block::Expr)
-    encountered_description = false
-    encountered_argument = false
     encountered_positional = false
     encoundered_optional_positional = false
     
@@ -26,30 +24,13 @@ function _validateorder(block::Expr)
             # Fix namespace issues
             macroname::Symbol = _get_macroname(arg)
 
-            if macroname == usage_symbol
-                if encountered_description || encountered_argument
-                    throw(ArgumentError(
-                        "Usage must be stated before description or arguments.\nFrom: $arg"
-                    ))
-                end
-            elseif macroname == description_symbol
-                encountered_description = true
-
-                if encountered_argument
-                    throw(ArgumentError(
-                        "Description must be stated before any arguments.\nFrom: $arg"
-                    ))
-                end
-            elseif macroname in flagged_symbols
-                encountered_argument = true
-
+            if macroname in flagged_symbols
                 if encountered_positional
                     throw(ArgumentError(
                         "Positional arguments must be declared after all flagged arguments.\nFrom: $arg"
                     ))
                 end
             elseif macroname == positional_required_symbol
-                encountered_argument = true
                 encountered_positional = true
 
                 if encoundered_optional_positional
@@ -58,7 +39,6 @@ function _validateorder(block::Expr)
                     ))
                 end
             elseif macroname in positional_optional_symbols
-                encountered_argument = true
                 encountered_positional = true
                 encoundered_optional_positional = true
             end

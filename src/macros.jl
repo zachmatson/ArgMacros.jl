@@ -299,7 +299,7 @@ macro argtest(argname::Symbol, func::Union{Symbol, Expr}, desc::Union{String, No
 end
 
 """
-    @allowextraargs
+    @allowextraarguments
 
 Disables the default behavior of printing a message and exiting
 the program when not all values in `ARGS` could be assigned to
@@ -311,7 +311,7 @@ Must be used in `@beginarguments begin ... end` block
 ```julia
 @beginarguments begin
     ...
-    @allowextraargs
+    @allowextraarguments
 end
 ```
 """
