@@ -62,7 +62,7 @@ Must be used in `@beginarguments begin ... end` block
 ```julia
 @beginarguments begin
     ...
-    @argumentrequired String output_file "--output" "-o"
+    @argumentrequired String output_file "-o" "--output"
     ...
 end
 ```
@@ -89,7 +89,7 @@ Must be used in `@beginarguments begin ... end` block
 ```julia
 @beginarguments begin
     ...
-    @argumentdefault String "output.txt" output_file "--output" "-o"
+    @argumentdefault String "output.txt" output_file "-o" "--output"
     ...
 end
 ```
@@ -116,7 +116,7 @@ Must be used in `@beginarguments begin ... end` block
 ```julia
 @beginarguments begin
     ...
-    @argumentoptional String output_file "--output" "-o"
+    @argumentoptional String output_file "-o" "--output"
     ...
 end
 ```
@@ -143,7 +143,7 @@ Must be used in `@beginarguments begin ... end` block
 ```julia
 @beginarguments begin
     ...
-    @argumentflag verbose "--verbose" "-v"
+    @argumentflag verbose "-v" "--verbose"
     ...
 end
 ```
