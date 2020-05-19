@@ -1,5 +1,9 @@
 module ArgMacros
 
+if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@optlevel"))
+    @eval Base.Experimental.@optlevel 1
+end
+
 using TextWrap
 using Base: @kwdef
 
