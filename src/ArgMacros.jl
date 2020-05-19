@@ -19,9 +19,7 @@ include("macros.jl")
 #=
 TODO
     multi-value arguments
-    backspace and escaping behavior
-    Documentation
-    Publish and resgister project
+    escaping behavior
 =#
 
 """

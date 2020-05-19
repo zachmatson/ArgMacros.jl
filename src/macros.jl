@@ -273,7 +273,7 @@ end
 """
     @argtest argname func [desc]
 
-Apply `func` to the value stored in `argname`, printint an error message (optionally
+Apply `func` to the value stored in `argname`, printing an error message (optionally
 specified by `desc`) and the program  if `func` returns `false`.
 This macro must be used AFTER declaring the arugment with another macro.
 
