@@ -1,5 +1,6 @@
 module ArgMacros
 
+# Lower the optimization level for faster startup times, if supported
 if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@optlevel"))
     @eval Base.Experimental.@optlevel 1
 end
