@@ -96,25 +96,23 @@ function _pop_count!(args::Vector{String}, flag::String)::Int
     return initial_arg_length - length(args)
 end
 
-"""
-Convert string to Number type with parse or other type with direct conversion.
-Quit program if s is nothing or conversion fails.
-"""
-function _converttype!(::Type{T}, s::Union{String, Nothing}, name::String)::T where T
-    if isnothing(s)
-        _quit_try_help("Argument $name missing")
-    end
-
+"Convert string to Number type with parse or other type with direct conversion."
+function _converttype!(::Type{T}, s::String, name::String)::T where T
     try
         if T <: Number
-            # Allow floating value to be passed to Int argument
-            return T(parse(Float64, s))
+            # Allow floating point value to be passed to Int argument
+            return T(parse(Float64, s)::Float64)
         else
             return T(s)
         end
     catch
         _quit_try_help("Invalid type for argument $name")
     end
+end
+
+"Quit program if the value is nothing"
+function _converttype!(::Type{T}, ::Nothing, name::String)::Nothing where T
+    _quit_try_help("Argument $name missing")
 end
 
 "If x is not a string (i.e. literal passed as default) assume direct conversion is possible. Does NOT validate."
