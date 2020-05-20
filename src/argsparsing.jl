@@ -33,14 +33,24 @@ function _split_arguments(args::Vector{String})::Vector{String}
     splitargs = Vector{String}()
 
     for arg in args
-        # Expand arg/value pairs with = to separate entries
-        for splitarg in split(arg, '=')
+        # Flags/options
+        if arg[1] == '-'
+            arg_split = split(arg, '=', limit=2)::Vector{SubString{String}}
+
             # Handle chained flags or flags with Int values like "-xzfv" or "-O3"
-            if splitarg[1] == '-' && splitarg[2] != '-' && length(splitarg) > 2
-                append!(splitargs, _split_multiflag(splitarg))
+            if length(arg_split[1]) > 2 && arg_split[1][2] != '-'
+                append!(splitargs, _split_multiflag(arg_split[1]))
+                
+                if length(arg_split) == 2
+                    push!(splitargs, arg_split[2])
+                end
+            # Handle other flags
             else
-                push!(splitargs, splitarg)
+                append!(splitargs, arg_split)
             end
+        # Values
+        else
+            push!(splitargs, arg)
         end
     end
 
