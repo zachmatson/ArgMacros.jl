@@ -71,7 +71,7 @@ function _pop_argval!(args::Vector{String}, flags::Vector{String})::Union{String
     option_idx = _get_option_idx(args, flags)
     if isnothing(option_idx)
         return nothing
-    elseif option_idx == length(args) || args[option_idx + 1][1] == '-' # Found flag but no value to go with it
+    elseif option_idx == length(args) # Found flag but no value to go with it
         _quit_try_help("Argument $(args[option_idx]) requires a value")
     else
         val::String = args[option_idx + 1]
