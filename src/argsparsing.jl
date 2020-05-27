@@ -12,9 +12,9 @@ function _split_multiflag(s::AbstractString)::Vector{String}
     max_i::Int = length(s) + 1
     i::Int = 2 # First character should always be '-'
     while i < max_i
-        if s[i] == '-' # Ignore
+        if s[i] == '-' && (i == max_i - 1 || (!isdigit(s[i+1]) && s[i+1] !== '.')) # Ignore
             i += 1
-        elseif isdigit(s[i]) # Allow numbers inside group of flags with no space or =
+        elseif isdigit(s[i]) || s[i] === '-' || s[i] === '.' # Allow numbers inside group of flags with no space or =
             nextletter::Int = something(findnext((c -> isletter(c) || c == '-'), s, i + 1), max_i)
             push!(splitflags, s[i:nextletter - 1])
             i = nextletter
@@ -38,7 +38,8 @@ function _split_arguments(args::Vector{String})::Vector{String}
             arg_split = split(arg, '=', limit=2)::Vector{SubString{String}}
 
             # Handle chained flags or flags with Int values like "-xzfv" or "-O3"
-            if length(arg_split[1]) > 2 && arg_split[1][2] != '-'
+            # But do not mess up negative numbers
+            if length(arg_split[1]) > 2 && arg_split[1][2] !== '-' && arg_split[1][2] !== '.' && !isdigit(arg_split[1][2])
                 append!(splitargs, _split_multiflag(arg_split[1]))
                 
                 if length(arg_split) == 2
