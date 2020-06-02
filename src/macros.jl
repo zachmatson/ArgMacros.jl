@@ -274,7 +274,8 @@ end
     @argtest argname func [desc]
 
 Apply `func` to the value stored in `argname`, printing an error message (optionally
-specified by `desc`) and the program  if `func` returns `false`.
+specified by `desc`) and the program  if `func` returns `false`.  
+Test skipped if `argname` has value `nothing` (only possible for optional arguments).  
 This macro must be used AFTER declaring the arugment with another macro.
 
 Must be used in `@beginarguments begin ... end` block
@@ -292,7 +293,7 @@ end
 macro argtest(argname::Symbol, func::Union{Symbol, Expr}, desc::Union{String, Nothing}=nothing)
     errstr::String = something(desc, "Tests for argument $argname failed.")
     return quote
-        if !$(esc(esc(func)))($(esc(esc(argname))))
+        if !(isnothing($(esc(esc(argname)))) || $(esc(esc(func)))($(esc(esc(argname)))))
             _quit_try_help($errstr)
         end
     end
