@@ -88,7 +88,7 @@ macro arghelp(helptext::String) end
 function _quit_try_help(message::String)
     println(message)
     println("Try the --help option")
-    exit()
+    exit(1)
 end
 
 #=
@@ -99,7 +99,7 @@ Help is generated on-demand, may want to change this for precompiled scripts
 function _help_check(args::Vector{String}, block::Expr)
     if !isnothing(_get_option_idx(args, ["-h", "--help"]))
         _make_help(block) |> print
-        exit()
+        exit(0)
     end
 end
 
