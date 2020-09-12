@@ -14,7 +14,7 @@ Denote and setup a block with other macros from `ArgMacros`
 
 # Example
 ```julia
-julia_main()
+function julia_main()
     @beginarguments begin
         ...
         @argumentrequired Int foo "-f" "--foo"
