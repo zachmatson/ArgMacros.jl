@@ -45,3 +45,25 @@ function _validateorder(block::Expr)
         end
     end
 end
+
+"Extract name => type pair from argument macrocall expression"
+function _getargumentpair(arg::Expr)::Union{Expr, Nothing}
+    macroname::Symbol = _get_macroname(arg)
+
+    if macroname in (ARGUMENT_REQUIRED_SYMBOL, POSITIONAL_REQUIRED_SYMBOL)
+        :($(arg.args[4])::$(arg.args[3]))
+    elseif macroname in (ARGUMENT_DEFAULT_SYMBOL, POSITIONAL_DEFAULT_SYMBOL)
+        :($(arg.args[5])::$(arg.args[3]))
+    elseif macroname in (ARGUMENT_OPTIONAL_SYMBOL, POSITIONAL_OPTIONAL_SYMBOL)
+        :($(arg.args[4])::Union{$(arg.args[3]), Nothing})
+    elseif macroname == ARGUMENT_FLAG_SYMBOL
+        :($(arg.args[3])::Bool)
+    elseif macroname == ARGUMENT_COUNT_SYMBOL
+        :($(arg.args[3])::Int)
+    end
+end
+
+"Extract name => type pairs for all argument macros in block"
+function _getargumentpairs(block::Expr)
+    Iterators.filter(!isnothing, _getargumentpair(arg) for arg in block.args if arg isa Expr && arg.head == :macrocall)
+end

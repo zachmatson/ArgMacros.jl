@@ -42,6 +42,101 @@ macro beginarguments(block::Expr)
     end
 end
 
+"""
+    @structbeginarguments mutable typename begin ... end
+
+Denote and setup a block with other macros from `ArgMacros`
+Defines an optionally mutable struct type based on the arguments and a zero-argument constructor
+which will generate an instance of the struct based on the parsed arguments.
+
+# Example
+```julia
+function handleargs()
+    @structbeginarguments false Args begin
+        ...
+        @argumentrequired Int foo "-f" "--foo"
+        @argumentdefault Int 5 bar "-b" "--bar"
+        ...
+    end
+    ...
+end
+```
+"""
+macro structbeginarguments(mutable::Bool, name::Symbol, block::Expr)
+    Expr(:block,
+        Expr(:struct, mutable, name, Expr(:block, _getargumentpairs(block)...)),
+        esc(Expr(:function,
+            :($name()::$name),
+            Expr(:block,
+                :(@beginarguments $block),
+                Expr(:call,
+                    name,
+                    (:($(pair.args[1])) for pair in _getargumentpairs(block))...
+                )
+            )
+        ))
+    )
+end
+
+"""
+    @tuplebeginarguments begin ... end
+
+Denote and setup a block with other macros from `ArgMacros`
+Return a NamedTuple with the arguments instead of dumping them in the enclosing namespace
+
+
+# Example
+```julia
+function julia_main()
+    args = @tuplebeginarguments begin
+        ...
+        @argumentrequired Int foo "-f" "--foo"
+        @argumentdefault Int 5 bar "-b" "--bar"
+        ...
+    end
+    ...
+end
+```
+"""
+macro tuplebeginarguments(block::Expr)
+    Expr(:let, Expr(:block), esc(Expr(:block,
+        :(@beginarguments $block),
+        Expr(:tuple,
+            (:($(pair.args[1]) = $(pair.args[1])) for pair in _getargumentpairs(block))...
+        )
+    )))
+end
+
+"""
+    @dictbeginarguments begin ... end
+
+Denote and setup a block with other macros from `ArgMacros`
+Return a Dict with the arguments instead of dumping them in the enclosing namespace
+
+
+# Example
+```julia
+function julia_main()
+    args = @dictbeginarguments begin
+        ...
+        @argumentrequired Int foo "-f" "--foo"
+        @argumentdefault Int 5 bar "-b" "--bar"
+        ...
+    end
+    ...
+end
+```
+"""
+macro dictbeginarguments(block::Expr)
+    Expr(:let, Expr(:block), esc(Expr(:block,
+        :(@beginarguments $block),
+        Expr(:call,
+            :Dict,
+            (:($(Meta.quot(pair.args[1])) => $(pair.args[1])) for pair in _getargumentpairs(block))...
+        )
+    )))
+end
+
 #=
 Remaining macros require two escapes to get to the level of the calling scope
 Because they will be nested in the @beginarguments macro
