@@ -134,52 +134,52 @@ function _make_help(block::Expr)::Help
             macroname::Symbol = _get_macroname(arg)
 
             # Modify the help struct as needed by the encountered macro
-            if macroname == usage_symbol
+            if macroname == USAGE_SYMBOL
                 help.usage_text = arg.args[3] # 3rd arg for these is the string passed
-            elseif macroname == description_symbol
+            elseif macroname == DESCRIPTION_SYMBOL
                 help.description_text = arg.args[3]
-            elseif macroname == epilog_symbol
+            elseif macroname == EPILOG_SYMBOL
                 help.epilog_text = arg.args[3]
-            elseif macroname == arghelp_symbol
+            elseif macroname == ARGHELP_SYMBOL
                 # Add description to last pushed element in positionals or options
                 argvector::Vector{Argument} = getfield(help, lastpushed)
                 argvector[end].description = arg.args[3]
-            elseif macroname == argument_required_symbol
+            elseif macroname == ARGUMENT_REQUIRED_SYMBOL
                 push!(help.options, Argument(
                     arg.args[5:end], arg.args[3], true, false, "", "")
                 )
                 lastpushed = :options
-            elseif macroname == argument_default_symbol
+            elseif macroname == ARGUMENT_DEFAULT_SYMBOL
                 push!(help.options, Argument(
                     arg.args[6:end], arg.args[3], false, false, string(arg.args[4]), "")
                 )
                 lastpushed = :options
-            elseif macroname == argument_optional_symbol
+            elseif macroname == ARGUMENT_OPTIONAL_SYMBOL
                 push!(help.options, Argument(
                     arg.args[5:end], arg.args[3], false, false, "", "")
                 )
                 lastpushed = :options
-            elseif macroname == argument_flag_symbol
+            elseif macroname == ARGUMENT_FLAG_SYMBOL
                 push!(help.options, Argument(
                     arg.args[4:end], :Flag, false, false, "", "")
                 )
                 lastpushed = :options
-            elseif macroname == argument_count_symbol
+            elseif macroname == ARGUMENT_COUNT_SYMBOL
                 push!(help.options, Argument(
                     arg.args[4:end], :Count, false, false, "", "")
                 )
                 lastpushed = :options
-            elseif macroname == positional_required_symbol
+            elseif macroname == POSITIONAL_REQUIRED_SYMBOL
                 push!(help.positionals, Argument(
                     [arg.args[end]], arg.args[3], true, true, "", "")
                 )
                 lastpushed = :positionals
-            elseif macroname == positional_default_symbol
+            elseif macroname == POSITIONAL_DEFAULT_SYMBOL
                 push!(help.positionals, Argument(
                     [arg.args[end]], arg.args[3], false, true, string(arg.args[4]), "")
                 )
                 lastpushed = :positionals
-            elseif macroname == positional_optional_symbol
+            elseif macroname == POSITIONAL_OPTIONAL_SYMBOL
                 push!(help.positionals, Argument(
                     [arg.args[end]], arg.args[3], false, true, "", "")
                 )

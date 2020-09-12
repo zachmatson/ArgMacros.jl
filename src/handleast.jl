@@ -24,13 +24,13 @@ function _validateorder(block::Expr)
             # Fix namespace issues
             macroname::Symbol = _get_macroname(arg)
 
-            if macroname in flagged_symbols
+            if macroname in FLAGGED_SYMBOLS
                 if encountered_positional
                     throw(ArgumentError(
                         "Positional arguments must be declared after all flagged arguments.\nFrom: $arg"
                     ))
                 end
-            elseif macroname == positional_required_symbol
+            elseif macroname == POSITIONAL_REQUIRED_SYMBOL
                 encountered_positional = true
 
                 if encoundered_optional_positional
@@ -38,7 +38,7 @@ function _validateorder(block::Expr)
                         "Required positional arguments must be declared in order before all optional positional arguments.\nFrom: $arg"
                     ))
                 end
-            elseif macroname in positional_optional_symbols
+            elseif macroname in POSITIONAL_OPTIONAL_SYMBOLS
                 encountered_positional = true
                 encoundered_optional_positional = true
             end
