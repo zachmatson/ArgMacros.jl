@@ -166,7 +166,7 @@ macro argumentrequired(type::Symbol, local_name::Symbol, flags::String...)
     _validateflags(local_name, flags)
     return quote
         #  _converttype! is completely type safe
-        $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!($type, _pop_argval!(splitargs, [$flags...]), $(flags[end]))
+        local $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!($type, _pop_argval!(splitargs, [$flags...]), $(flags[end]))
     end
 end
 
@@ -194,7 +194,7 @@ macro argumentdefault(type::Symbol, default_value, local_name::Symbol, flags::St
     return quote
         potential_val::Union{String, Nothing} = _pop_argval!(splitargs, [$flags...])
         # Convert either potential or the default value, allows default to be specified with wrong literal type
-        $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!($type, something(potential_val, $default_value), $(flags[end]))
+        local $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!($type, something(potential_val, $default_value), $(flags[end]))
     end
 end
 
@@ -221,7 +221,7 @@ macro argumentoptional(type::Symbol, local_name::Symbol, flags::String...)
     return quote
         potential_val::Union{String, Nothing} = _pop_argval!(splitargs, [$flags...])
         # Return nothing directly without calling _converttype! if arg not found
-        $(esc(esc(local_name)))::$(esc(esc(Union))){$(esc(esc(type))), $(esc(esc(Nothing)))} =
+        local $(esc(esc(local_name)))::$(esc(esc(Union))){$(esc(esc(type))), $(esc(esc(Nothing)))} =
             isnothing(potential_val) ? nothing : _converttype!($type, potential_val, $(flags[end]))
     end
 end
@@ -246,7 +246,7 @@ end
 macro argumentflag(local_name::Symbol, flags::String...)
     _validateflags(local_name, flags)
     return quote
-        $(esc(esc(local_name)))::$(esc(esc(Bool))) = _pop_flag!(splitargs, [$flags...])
+        local $(esc(esc(local_name)))::$(esc(esc(Bool))) = _pop_flag!(splitargs, [$flags...])
     end
 end
 
@@ -268,7 +268,7 @@ end
 """
 macro argumentcount(local_name::Symbol, flag::String)
     return quote
-        $(esc(esc(local_name)))::$(esc(esc(Int))) = _pop_count!(splitargs, $flag)
+        local $(esc(esc(local_name)))::$(esc(esc(Int))) = _pop_count!(splitargs, $flag)
     end
 end
 
@@ -296,7 +296,7 @@ end
 macro positionalrequired(type::Symbol, local_name::Symbol, help_name::Union{String, Nothing}=nothing)
     help_name_str::String = something(help_name, String(local_name))
     return quote
-        $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!(
+        local $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!(
             $type,
             !isempty(splitargs) ? popfirst!(splitargs) : nothing,
             $help_name_str
@@ -329,7 +329,7 @@ end
 macro positionaldefault(type::Symbol, default_value, local_name::Symbol, help_name::Union{String, Nothing}=nothing)
     help_name_str::String = something(help_name, String(local_name))
     return quote
-        $(esc(esc(local_name)))::$(esc(esc(type))) =_converttype!(
+        local $(esc(esc(local_name)))::$(esc(esc(type))) =_converttype!(
             $type,
             !isempty(splitargs) ? popfirst!(splitargs) : $default_value,
             $help_name_str
@@ -360,7 +360,7 @@ end
 macro positionaloptional(type::Symbol, local_name::Symbol, help_name::Union{String, Nothing}=nothing)
     help_name_str::String = something(help_name, String(local_name))
     return quote
-        $(esc(esc(local_name)))::$(esc(esc(Union))){$(esc(esc(type))), $(esc(esc(Nothing)))} =
+        local $(esc(esc(local_name)))::$(esc(esc(Union))){$(esc(esc(type))), $(esc(esc(Nothing)))} =
             !isempty(splitargs) ? _converttype!($type, popfirst!(splitargs), $help_name_str) : nothing
     end
 end
