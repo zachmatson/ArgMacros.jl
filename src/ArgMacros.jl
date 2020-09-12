@@ -8,7 +8,8 @@ end
 using TextWrap
 using Base: @kwdef
 
-export @beginarguments, @structbeginarguments, @tuplebeginarguments, @dictbeginarguments
+export @inlinebeginarguments, @structbeginarguments, @tuplebeginarguments,
+       @dictbeginarguments
 export @helpusage, @helpdescription, @helpepilog
 export @argumentrequired, @argumentdefault, @argumentoptional,
        @argumentflag, @argumentcount

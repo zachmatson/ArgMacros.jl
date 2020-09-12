@@ -25,7 +25,7 @@ function julia_main()
 end
 ```
 """
-macro beginarguments(block::Expr)
+macro inlinebeginarguments(block::Expr)
     _validateorder(block) # Validate ordering of macros
 
     return quote
@@ -68,7 +68,7 @@ macro structbeginarguments(mutable::Bool, name::Symbol, block::Expr)
         esc(Expr(:function,
             :($name()::$name),
             Expr(:block,
-                :(@beginarguments $block),
+                :(@inlinebeginarguments $block),
                 Expr(:call,
                     name,
                     (:($(pair.args[1])) for pair in _getargumentpairs(block))...
@@ -100,7 +100,7 @@ end
 """
 macro tuplebeginarguments(block::Expr)
     Expr(:let, Expr(:block), esc(Expr(:block,
-        :(@beginarguments $block),
+        :(@inlinebeginarguments $block),
         Expr(:tuple,
             (:($(pair.args[1]) = $(pair.args[1])) for pair in _getargumentpairs(block))...
         )
@@ -129,7 +129,7 @@ end
 """
 macro dictbeginarguments(block::Expr)
     Expr(:let, Expr(:block), esc(Expr(:block,
-        :(@beginarguments $block),
+        :(@inlinebeginarguments $block),
         Expr(:call,
             :Dict,
             (:($(Meta.quot(pair.args[1])) => $(pair.args[1])) for pair in _getargumentpairs(block))...
