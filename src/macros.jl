@@ -61,8 +61,8 @@ end
 """
     @structarguments mutable typename begin ... end
 
-Denote and setup a block with other macros from `ArgMacros`
-Defines an optionally mutable struct type based on the arguments and a zero-argument constructor
+Denote and setup a block with other macros from `ArgMacros`    
+Defines an optionally mutable struct type based on the arguments and a zero-argument constructor    
 which will generate an instance of the struct based on the parsed arguments.
 
 # Example
@@ -97,8 +97,8 @@ end
 """
     @tuplearguments begin ... end
 
-Denote and setup a block with other macros from `ArgMacros`
-Return a NamedTuple with the arguments instead of dumping them in the enclosing namespace
+Denote and setup a block with other macros from `ArgMacros`    
+Return a NamedTuple with the arguments instead of dumping them in the enclosing namespace    
 
 
 # Example
@@ -126,8 +126,8 @@ end
 """
     @dictarguments begin ... end
 
-Denote and setup a block with other macros from `ArgMacros`
-Return a Dict with the arguments instead of dumping them in the enclosing namespace
+Denote and setup a block with other macros from `ArgMacros`    
+Return a Dict with the arguments instead of dumping them in the enclosing namespace    
 
 
 # Example

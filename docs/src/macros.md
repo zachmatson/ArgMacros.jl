@@ -1,11 +1,14 @@
 # Available Macros
 
-## `@beginarguments`
+## `@...arguments`
 
-The `@beginarguments begin ... end` block will hold all of your `ArgMacros` code.
-You shouldn't have to worry about this macro as long as you use it to enclose your other code.
+The `@...arguments begin ... end` block will hold all of your `ArgMacros` code.
+The [Using Argument Values](@ref) section provides a good comparison of the different available macros.
 ```@docs
-@beginarguments
+@inlinearguments
+@structarguments
+@tuplearguments
+@dictarguments
 ```
 
 ## Option Arguments
