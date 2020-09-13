@@ -147,7 +147,7 @@ macro dictarguments(block::Expr)
     Expr(:let, Expr(:block), esc(Expr(:block,
         :(@inlinearguments $block),
         Expr(:call,
-            :Dict,
+            :(Dict{Symbol, Any}),
             (:($(Meta.quot(pair.args[1])) => $(pair.args[1])) for pair in _getargumentpairs(block))...
         )
     )))
