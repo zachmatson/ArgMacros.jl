@@ -1,4 +1,4 @@
-push!(LOAD_PATH,"../src/")
+prepend!(LOAD_PATH, ["../src/"])
 
 using Documenter
 using ArgMacros

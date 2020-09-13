@@ -1,20 +1,20 @@
 # ArgMacros
 # constants.jl
 
-const usage_symbol = Symbol("@helpusage")
-const description_symbol = Symbol("@helpdescription")
-const epilog_symbol = Symbol("@helpepilog")
-const arghelp_symbol = Symbol("@arghelp")
+const USAGE_SYMBOL = Symbol("@helpusage")
+const DESCRIPTION_SYMBOL = Symbol("@helpdescription")
+const EPILOG_SYMBOL = Symbol("@helpepilog")
+const ARGHELP_SYMBOL = Symbol("@arghelp")
 
-const argument_required_symbol = Symbol("@argumentrequired")
-const argument_default_symbol = Symbol("@argumentdefault")
-const argument_optional_symbol = Symbol("@argumentoptional")
-const argument_flag_symbol = Symbol("@argumentflag")
-const argument_count_symbol = Symbol("@argumentcount")
-const flagged_symbols = [argument_required_symbol, argument_default_symbol, argument_optional_symbol,
-                         argument_flag_symbol, argument_count_symbol]
+const ARGUMENT_REQUIRED_SYMBOL = Symbol("@argumentrequired")
+const ARGUMENT_DEFAULT_SYMBOL = Symbol("@argumentdefault")
+const ARGUMENT_OPTIONAL_SYMBOL = Symbol("@argumentoptional")
+const ARGUMENT_FLAG_SYMBOL = Symbol("@argumentflag")
+const ARGUMENT_COUNT_SYMBOL = Symbol("@argumentcount")
+const FLAGGED_SYMBOLS = [ARGUMENT_REQUIRED_SYMBOL, ARGUMENT_DEFAULT_SYMBOL, ARGUMENT_OPTIONAL_SYMBOL,
+                         ARGUMENT_FLAG_SYMBOL, ARGUMENT_COUNT_SYMBOL]
 
-const positional_required_symbol = Symbol("@positionalrequired")
-const positional_default_symbol = Symbol("@positionaldefault")
-const positional_optional_symbol = Symbol("@positionaloptional")
-const positional_optional_symbols = [positional_default_symbol, positional_optional_symbol]
+const POSITIONAL_REQUIRED_SYMBOL = Symbol("@positionalrequired")
+const POSITIONAL_DEFAULT_SYMBOL = Symbol("@positionaldefault")
+const POSITIONAL_OPTIONAL_SYMBOL = Symbol("@positionaloptional")
+const POSITIONAL_OPTIONAL_SYMBOLS = [POSITIONAL_DEFAULT_SYMBOL, POSITIONAL_OPTIONAL_SYMBOL]

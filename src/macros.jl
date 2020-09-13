@@ -8,14 +8,14 @@ function _validateflags(local_name, flags)
 end
 
 """
-    @beginarguments begin ... end
+    @inlinearguments begin ... end
 
 Denote and setup a block with other macros from `ArgMacros`
 
 # Example
 ```julia
-julia_main()
-    @beginarguments begin
+function julia_main()
+    @inlinearguments begin
         ...
         @argumentrequired Int foo "-f" "--foo"
         @argumentdefault Int 5 bar "-b" "--bar"
@@ -25,7 +25,7 @@ julia_main()
 end
 ```
 """
-macro beginarguments(block::Expr)
+macro inlinearguments(block::Expr)
     _validateorder(block) # Validate ordering of macros
 
     return quote
@@ -40,6 +40,117 @@ macro beginarguments(block::Expr)
             _quit_try_help("Too many or unrecognized arguments provided")
         end
     end
+end
+
+"""
+    @beginarguments begin ... end
+
+This macro is deprecated beginning in ArgMacros v0.2.0    
+Please use @inlinearguments, which has the same interface    
+Or consider @structarguments, @tuplearguments, and @dictarguments depending on your use case
+"""
+macro beginarguments(block::Expr) 
+    @warn """
+        Macro `@beginarguments` is deprecated in ArgMacros v0.2.0
+        Please use @inlinearguments, which has the same interface
+        Or consider @structarguments, @tuplearguments, and @dictarguments depending on your use case
+    """
+    esc(:(@inlinearguments $block))
+end
+
+"""
+    @structarguments mutable typename begin ... end
+
+Denote and setup a block with other macros from `ArgMacros`    
+Defines an optionally mutable struct type based on the arguments and a zero-argument constructor    
+which will generate an instance of the struct based on the parsed arguments.
+
+# Example
+```julia
+function handleargs()
+    @structarguments false Args begin
+        ...
+        @argumentrequired Int foo "-f" "--foo"
+        @argumentdefault Int 5 bar "-b" "--bar"
+        ...
+    end
+    ...
+end
+```
+"""
+macro structarguments(mutable::Bool, name::Symbol, block::Expr)
+    Expr(:block,
+        Expr(:struct, mutable, name, Expr(:block, _getargumentpairs(block)...)),
+        esc(Expr(:function,
+            :($name()::$name),
+            Expr(:block,
+                :(@inlinearguments $block),
+                Expr(:call,
+                    name,
+                    (:($(pair.args[1])) for pair in _getargumentpairs(block))...
+                )
+            )
+        ))
+    )
+end
+
+"""
+    @tuplearguments begin ... end
+
+Denote and setup a block with other macros from `ArgMacros`    
+Return a NamedTuple with the arguments instead of dumping them in the enclosing namespace    
+
+
+# Example
+```julia
+function julia_main()
+    args = @tuplearguments begin
+        ...
+        @argumentrequired Int foo "-f" "--foo"
+        @argumentdefault Int 5 bar "-b" "--bar"
+        ...
+    end
+    ...
+end
+```
+"""
+macro tuplearguments(block::Expr)
+    Expr(:let, Expr(:block), esc(Expr(:block,
+        :(@inlinearguments $block),
+        Expr(:tuple,
+            (:($(pair.args[1]) = $(pair.args[1])) for pair in _getargumentpairs(block))...
+        )
+    )))
+end
+
+"""
+    @dictarguments begin ... end
+
+Denote and setup a block with other macros from `ArgMacros`    
+Return a Dict with the arguments instead of dumping them in the enclosing namespace    
+
+
+# Example
+```julia
+function julia_main()
+    args = @dictarguments begin
+        ...
+        @argumentrequired Int foo "-f" "--foo"
+        @argumentdefault Int 5 bar "-b" "--bar"
+        ...
+    end
+    ...
+end
+```
+"""
+macro dictarguments(block::Expr)
+    Expr(:let, Expr(:block), esc(Expr(:block,
+        :(@inlinearguments $block),
+        Expr(:call,
+            :(Dict{Symbol, Any}),
+            (:($(Meta.quot(pair.args[1])) => $(pair.args[1])) for pair in _getargumentpairs(block))...
+        )
+    )))
 end
 
 #=
@@ -71,7 +182,7 @@ macro argumentrequired(type::Symbol, local_name::Symbol, flags::String...)
     _validateflags(local_name, flags)
     return quote
         #  _converttype! is completely type safe
-        $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!($type, _pop_argval!(splitargs, [$flags...]), $(flags[end]))
+        local $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!($type, _pop_argval!(splitargs, [$flags...]), $(flags[end]))
     end
 end
 
@@ -99,7 +210,7 @@ macro argumentdefault(type::Symbol, default_value, local_name::Symbol, flags::St
     return quote
         potential_val::Union{String, Nothing} = _pop_argval!(splitargs, [$flags...])
         # Convert either potential or the default value, allows default to be specified with wrong literal type
-        $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!($type, something(potential_val, $default_value), $(flags[end]))
+        local $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!($type, something(potential_val, $default_value), $(flags[end]))
     end
 end
 
@@ -126,7 +237,7 @@ macro argumentoptional(type::Symbol, local_name::Symbol, flags::String...)
     return quote
         potential_val::Union{String, Nothing} = _pop_argval!(splitargs, [$flags...])
         # Return nothing directly without calling _converttype! if arg not found
-        $(esc(esc(local_name)))::$(esc(esc(Union))){$(esc(esc(type))), $(esc(esc(Nothing)))} =
+        local $(esc(esc(local_name)))::$(esc(esc(Union))){$(esc(esc(type))), $(esc(esc(Nothing)))} =
             isnothing(potential_val) ? nothing : _converttype!($type, potential_val, $(flags[end]))
     end
 end
@@ -151,7 +262,7 @@ end
 macro argumentflag(local_name::Symbol, flags::String...)
     _validateflags(local_name, flags)
     return quote
-        $(esc(esc(local_name)))::$(esc(esc(Bool))) = _pop_flag!(splitargs, [$flags...])
+        local $(esc(esc(local_name)))::$(esc(esc(Bool))) = _pop_flag!(splitargs, [$flags...])
     end
 end
 
@@ -173,7 +284,7 @@ end
 """
 macro argumentcount(local_name::Symbol, flag::String)
     return quote
-        $(esc(esc(local_name)))::$(esc(esc(Int))) = _pop_count!(splitargs, $flag)
+        local $(esc(esc(local_name)))::$(esc(esc(Int))) = _pop_count!(splitargs, $flag)
     end
 end
 
@@ -201,7 +312,7 @@ end
 macro positionalrequired(type::Symbol, local_name::Symbol, help_name::Union{String, Nothing}=nothing)
     help_name_str::String = something(help_name, String(local_name))
     return quote
-        $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!(
+        local $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!(
             $type,
             !isempty(splitargs) ? popfirst!(splitargs) : nothing,
             $help_name_str
@@ -234,7 +345,7 @@ end
 macro positionaldefault(type::Symbol, default_value, local_name::Symbol, help_name::Union{String, Nothing}=nothing)
     help_name_str::String = something(help_name, String(local_name))
     return quote
-        $(esc(esc(local_name)))::$(esc(esc(type))) =_converttype!(
+        local $(esc(esc(local_name)))::$(esc(esc(type))) =_converttype!(
             $type,
             !isempty(splitargs) ? popfirst!(splitargs) : $default_value,
             $help_name_str
@@ -265,7 +376,7 @@ end
 macro positionaloptional(type::Symbol, local_name::Symbol, help_name::Union{String, Nothing}=nothing)
     help_name_str::String = something(help_name, String(local_name))
     return quote
-        $(esc(esc(local_name)))::$(esc(esc(Union))){$(esc(esc(type))), $(esc(esc(Nothing)))} =
+        local $(esc(esc(local_name)))::$(esc(esc(Union))){$(esc(esc(type))), $(esc(esc(Nothing)))} =
             !isempty(splitargs) ? _converttype!($type, popfirst!(splitargs), $help_name_str) : nothing
     end
 end
