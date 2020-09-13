@@ -8,7 +8,7 @@ let
     empty!(ARGS)
     append!(ARGS, ["TEST STRING F", "-deeee", "30", "3.14", "-b=6.28", "--cc", "ArgMacros", "-a", "2"])
 
-    println("Common Precompile Time")
+    println("Inline Arguments Time with Precompile")
     let
         @time @inlinearguments begin
             @argumentrequired Int a "-a" "--aa"
@@ -272,3 +272,8 @@ end
     @test success(`julia --project=.. get_args_fail_at_exit.jl -- "TEST STRING F" 30 -h 3.14 -deeee -b=dog --cc ArgMacros -a 2`)
     @test success(`julia --project=.. get_args_fail_at_exit.jl -- --help`)
 end
+
+println("Time for 8 argument script cold launch and parsing including Julia start")
+@time run(`julia --project=.. get_args_no_fail_at_exit.jl -- "TEST STRING F" -deeee 30 3.14 -b=6.28 --cc ArgMacros -a 2`)
+println("Time for Julia start only")
+@time run(`julia --project=.. blank_script.jl`)
