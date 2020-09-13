@@ -10,7 +10,7 @@ let
 
     println("Common Precompile Time")
     let
-        @time @inlinebeginarguments begin
+        @time @inlinearguments begin
             @argumentrequired Int a "-a" "--aa"
             @argtest a (<(10))
             @argumentdefault Float64 10 b "-b"
@@ -26,7 +26,7 @@ let
     end
 
     println("Inline Arguments Time")
-    @time @inlinebeginarguments begin
+    @time @inlinearguments begin
         @argumentrequired Int a "-a" "--aa"
         @argtest a (<(10))
         @argumentdefault Float64 10 b "-b"
@@ -42,7 +42,7 @@ let
 
     println("Struct Arguments Time")
     @time begin
-        @structbeginarguments false ArgsStruct begin
+        @structarguments false ArgsStruct begin
             @argumentrequired Int a "-a" "--aa"
             @argtest a (<(10))
             @argumentdefault Float64 10 b "-b"
@@ -60,7 +60,7 @@ let
     end
 
     println("Tuple Arguments Time")
-    @time argstuple = @tuplebeginarguments begin
+    @time argstuple = @tuplearguments begin
         @argumentrequired Int a "-a" "--aa"
         @argtest a (<(10))
         @argumentdefault Float64 10 b "-b"
@@ -75,7 +75,7 @@ let
     end
 
     println("Dict Arguments Time")
-    @time argsdict = @dictbeginarguments begin
+    @time argsdict = @dictarguments begin
         @argumentrequired Int a "-a" "--aa"
         @argtest a (<(10))
         @argumentdefault Float64 10 b "-b"
@@ -141,7 +141,7 @@ let
     empty!(ARGS)
     append!(ARGS, ["OTHER TEST STRING F", "--aa=5"])
 
-    @inlinebeginarguments begin
+    @inlinearguments begin
         @argumentrequired Int a "-a" "--aa"
         @argtest a (<(10))
         @argumentdefault Float64 10 b "-b"
@@ -155,7 +155,7 @@ let
         @positionaloptional Float64 h
     end
 
-    @structbeginarguments false ArgsStruct begin
+    @structarguments false ArgsStruct begin
         @argumentrequired Int a "-a" "--aa"
         @argtest a (<(10))
         @argumentdefault Float64 10 b "-b"
@@ -171,7 +171,7 @@ let
 
     argsstruct = ArgsStruct()
 
-    argstuple = @tuplebeginarguments begin
+    argstuple = @tuplearguments begin
         @argumentrequired Int a "-a" "--aa"
         @argtest a (<(10))
         @argumentdefault Float64 10 b "-b"
@@ -185,7 +185,7 @@ let
         @positionaloptional Float64 h
     end
 
-    argsdict = @dictbeginarguments begin
+    argsdict = @dictarguments begin
         @argumentrequired Int a "-a" "--aa"
         @argtest a (<(10))
         @argumentdefault Float64 10 b "-b"

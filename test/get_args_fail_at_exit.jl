@@ -1,7 +1,7 @@
 using ArgMacros
 
 let
-    @inlinebeginarguments begin
+    @inlinearguments begin
         @argumentrequired Int a "-a" "--aa"
         @argtest a (<(10))
         @argumentdefault Float64 10 b "-b"

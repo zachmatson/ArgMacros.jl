@@ -8,8 +8,8 @@ end
 using TextWrap
 using Base: @kwdef
 
-export @inlinebeginarguments, @structbeginarguments, @tuplebeginarguments,
-       @dictbeginarguments
+export @beginarguments, @inlinearguments, @structarguments,
+       @tuplearguments, @dictarguments
 export @helpusage, @helpdescription, @helpepilog
 export @argumentrequired, @argumentdefault, @argumentoptional,
        @argumentflag, @argumentcount
@@ -36,7 +36,7 @@ results in typed local variables.
 Basic usage:
 ```julia
 julia_main()
-    @beginarguments begin
+    @inlinearguments begin
         @argumentrequired Int foo "-f" "--foo"
         @argumentdefault Int 5 bar "-b" "--bar"
         ...

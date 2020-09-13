@@ -8,14 +8,14 @@ function _validateflags(local_name, flags)
 end
 
 """
-    @beginarguments begin ... end
+    @inlinearguments begin ... end
 
 Denote and setup a block with other macros from `ArgMacros`
 
 # Example
 ```julia
 function julia_main()
-    @beginarguments begin
+    @inlinearguments begin
         ...
         @argumentrequired Int foo "-f" "--foo"
         @argumentdefault Int 5 bar "-b" "--bar"
@@ -25,7 +25,7 @@ function julia_main()
 end
 ```
 """
-macro inlinebeginarguments(block::Expr)
+macro inlinearguments(block::Expr)
     _validateorder(block) # Validate ordering of macros
 
     return quote
@@ -43,7 +43,23 @@ macro inlinebeginarguments(block::Expr)
 end
 
 """
-    @structbeginarguments mutable typename begin ... end
+    @beginarguments begin ... end
+
+This macro is deprecated beginning in ArgMacros v0.2.0    
+Please use @inlinearguments, which has the same interface    
+Or consider @structarguments, @tuplearguments, and @dictarguments depending on your use case
+"""
+macro beginarguments(block::Expr) 
+    @warn """
+        Macro `@beginarguments` is deprecated in ArgMacros v0.2.0
+        Please use @inlinearguments, which has the same interface
+        Or consider @structarguments, @tuplearguments, and @dictarguments depending on your use case
+    """
+    esc(:(@inlinearguments $block))
+end
+
+"""
+    @structarguments mutable typename begin ... end
 
 Denote and setup a block with other macros from `ArgMacros`
 Defines an optionally mutable struct type based on the arguments and a zero-argument constructor
@@ -52,7 +68,7 @@ which will generate an instance of the struct based on the parsed arguments.
 # Example
 ```julia
 function handleargs()
-    @structbeginarguments false Args begin
+    @structarguments false Args begin
         ...
         @argumentrequired Int foo "-f" "--foo"
         @argumentdefault Int 5 bar "-b" "--bar"
@@ -62,13 +78,13 @@ function handleargs()
 end
 ```
 """
-macro structbeginarguments(mutable::Bool, name::Symbol, block::Expr)
+macro structarguments(mutable::Bool, name::Symbol, block::Expr)
     Expr(:block,
         Expr(:struct, mutable, name, Expr(:block, _getargumentpairs(block)...)),
         esc(Expr(:function,
             :($name()::$name),
             Expr(:block,
-                :(@inlinebeginarguments $block),
+                :(@inlinearguments $block),
                 Expr(:call,
                     name,
                     (:($(pair.args[1])) for pair in _getargumentpairs(block))...
@@ -79,7 +95,7 @@ macro structbeginarguments(mutable::Bool, name::Symbol, block::Expr)
 end
 
 """
-    @tuplebeginarguments begin ... end
+    @tuplearguments begin ... end
 
 Denote and setup a block with other macros from `ArgMacros`
 Return a NamedTuple with the arguments instead of dumping them in the enclosing namespace
@@ -88,7 +104,7 @@ Return a NamedTuple with the arguments instead of dumping them in the enclosing 
 # Example
 ```julia
 function julia_main()
-    args = @tuplebeginarguments begin
+    args = @tuplearguments begin
         ...
         @argumentrequired Int foo "-f" "--foo"
         @argumentdefault Int 5 bar "-b" "--bar"
@@ -98,9 +114,9 @@ function julia_main()
 end
 ```
 """
-macro tuplebeginarguments(block::Expr)
+macro tuplearguments(block::Expr)
     Expr(:let, Expr(:block), esc(Expr(:block,
-        :(@inlinebeginarguments $block),
+        :(@inlinearguments $block),
         Expr(:tuple,
             (:($(pair.args[1]) = $(pair.args[1])) for pair in _getargumentpairs(block))...
         )
@@ -108,7 +124,7 @@ macro tuplebeginarguments(block::Expr)
 end
 
 """
-    @dictbeginarguments begin ... end
+    @dictarguments begin ... end
 
 Denote and setup a block with other macros from `ArgMacros`
 Return a Dict with the arguments instead of dumping them in the enclosing namespace
@@ -117,7 +133,7 @@ Return a Dict with the arguments instead of dumping them in the enclosing namesp
 # Example
 ```julia
 function julia_main()
-    args = @dictbeginarguments begin
+    args = @dictarguments begin
         ...
         @argumentrequired Int foo "-f" "--foo"
         @argumentdefault Int 5 bar "-b" "--bar"
@@ -127,9 +143,9 @@ function julia_main()
 end
 ```
 """
-macro dictbeginarguments(block::Expr)
+macro dictarguments(block::Expr)
     Expr(:let, Expr(:block), esc(Expr(:block,
-        :(@inlinebeginarguments $block),
+        :(@inlinearguments $block),
         Expr(:call,
             :Dict,
             (:($(Meta.quot(pair.args[1])) => $(pair.args[1])) for pair in _getargumentpairs(block))...
