@@ -196,7 +196,7 @@ end
 A `Dict{Symbol, Any}` is returned containing all of the argument variables, keyed by the argument names as *`Symbol`s*. You can use
 this version from any scope. The `Dict` type is mutable, and any type can be stored in any of its fields. Therefore, this version
 does not provide as strong of a guarantee about types to the compuler when argument values are used later. However, the values
-are guaranteed to be of the correct types when the `Dict` is first returned.
+will always be of the correct types when the `Dict` is first returned.
 
 ```julia
 function main()
@@ -288,7 +288,7 @@ in a macro:
 ```julia
 macro handleargs()
     return esc(quote
-        @beginarguments begin
+        @inlinearguments begin
             ...
         end
     end)
@@ -301,6 +301,7 @@ function main()
 end
 ```
 
-The [`@structarguments`](@ref) must be used in a global scope, but its constructor can then be used anywhere.
-The other forms which directly return an object can be placed into an external function because they don't rely
-on being in the same namespace as the point where the arguments are used, as [`@inlinearguments`](@ref) does.
+The other formats provide more flexibility. The argument code for [`@tuplearguments`](@ref) and [`@dictarguments`](@ref)
+can be placed anywhere, including in a separate function which returns their result. [`@structarguments`](@ref) requires
+that you declare your arguments in the global namespace (not inside a function, loop, or `let` block), but this will automatically
+produce the zero-argument constructor function that you can then call wherever you like.

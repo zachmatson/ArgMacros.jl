@@ -67,13 +67,15 @@ which will generate an instance of the struct based on the parsed arguments.
 
 # Example
 ```julia
-function handleargs()
-    @structarguments false Args begin
-        ...
-        @argumentrequired Int foo "-f" "--foo"
-        @argumentdefault Int 5 bar "-b" "--bar"
-        ...
-    end
+@structarguments false Args begin
+    ...
+    @argumentrequired Int foo "-f" "--foo"
+    @argumentdefault Int 5 bar "-b" "--bar"
+    ...
+end
+
+function julia_main()
+    args = Args()
     ...
 end
 ```
