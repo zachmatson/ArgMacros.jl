@@ -1,7 +1,7 @@
 name = "ArgMacros"
 uuid = "dbc42088-9de8-42a0-8ec8-2cd114e1ea3e"
 authors = ["zachmatson"]
-version = "0.2.1"
+version = "0.2.2"
 
 [deps]
 TextWrap = "b718987f-49a8-5099-9789-dcd902bef87d"

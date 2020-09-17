@@ -1,8 +1,12 @@
 module ArgMacros
 
 # Lower the optimization level for faster startup times, if supported
-if isdefined(Base, :Experimental) && isdefined(Base.Experimental, Symbol("@optlevel"))
-    @eval Base.Experimental.@optlevel 1
+if isdefined(Base, :Experimental)
+    if isdefined(Base.Experimental, Symbol("@compiler_options"))
+        @eval Base.Experimental.@compiler_options compile=min optimize=1 infer=false
+    elseif isdefined(Base.Experimental, Symbol("@optlevel"))
+        @eval Base.Experimental.@optlevel 1
+    end
 end
 
 using TextWrap
@@ -27,6 +31,9 @@ TODO
     multi-value arguments
     escaping behavior
 =#
+
+include("precompile.jl")
+_precompile_()
 
 """
 Performant, macro-only, pure Julia package for parsing command line arguments.    
