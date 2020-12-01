@@ -305,3 +305,11 @@ The other formats provide more flexibility. The argument code for [`@tupleargume
 can be placed anywhere, including in a separate function which returns their result. [`@structarguments`](@ref) requires
 that you declare your arguments in the global namespace (not inside a function, loop, or `let` block), but this will automatically
 produce the zero-argument constructor function that you can then call wherever you like.
+
+## Calling a Julia Script With Arguments
+
+To call a Julia script with arguments from your terminal, run
+```text
+$ julia --flag-for-julia value1 -- myscript.jl value2 --flag-for-script value3
+```
+The `--` before the script name is not always necessary, but it is useful because it explicitly separates arguments passed to the Julia interpreter from arguments passed to your script.
