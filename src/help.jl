@@ -219,7 +219,7 @@ function show(io::IO, help::Help)
     end
 
     if !isempty(help.description_text)
-        println_wrapped(io, help.description_text)
+        println(io, help.description_text)
         println(io)
     end
 
@@ -240,7 +240,7 @@ function show(io::IO, help::Help)
     end
 
     if !isempty(help.epilog_text)
-        println_wrapped(io, help.epilog_text)
+        println(io, help.epilog_text)
         println(io)
     end
 end
