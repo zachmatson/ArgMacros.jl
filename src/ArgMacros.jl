@@ -17,7 +17,8 @@ export @beginarguments, @inlinearguments, @structarguments,
 export @helpusage, @helpdescription, @helpepilog
 export @argumentrequired, @argumentdefault, @argumentoptional,
        @argumentflag, @argumentcount
-export @positionalrequired, @positionaldefault, @positionaloptional
+export @positionalrequired, @positionaldefault, @positionaloptional,
+       @positionalleftover
 export @arghelp, @argtest, @allowextraarguments
 
 include("constants.jl")
@@ -25,12 +26,6 @@ include("handleast.jl")
 include("help.jl")
 include("argsparsing.jl")
 include("macros.jl")
-
-#=
-TODO
-    multi-value arguments
-    escaping behavior
-=#
 
 include("precompile.jl")
 _precompile_()

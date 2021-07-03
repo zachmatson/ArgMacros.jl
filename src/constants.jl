@@ -18,3 +18,4 @@ const POSITIONAL_REQUIRED_SYMBOL = Symbol("@positionalrequired")
 const POSITIONAL_DEFAULT_SYMBOL = Symbol("@positionaldefault")
 const POSITIONAL_OPTIONAL_SYMBOL = Symbol("@positionaloptional")
 const POSITIONAL_OPTIONAL_SYMBOLS = [POSITIONAL_DEFAULT_SYMBOL, POSITIONAL_OPTIONAL_SYMBOL]
+const POSITIONAL_LEFTOVER_SYMBOL = Symbol("@positionalleftover")

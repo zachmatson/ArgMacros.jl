@@ -63,6 +63,7 @@ The types of arguments supported are broken down into two categories:
   - [`@positionalrequired`](@ref)
   - [`@positionaldefault`](@ref)
   - [`@positionaloptional`](@ref)
+  - [`@positionalleftover`](@ref)
 
 The arguments are either required, optional, or have default values, as is evident
 in their names. Additionally, [`@argumentflag`](@ref) checks the presence of a flag,
@@ -76,7 +77,8 @@ For this reason, ALL options must be declared before ANY positionals, required
 positionals must be declared before default/optional ones, and positional arguments
 must be declared in the order the user is expected to enter them.
 
-You should make your argument types `Symbol`, `String`, or subtypes of `Number`.
+You should make your argument types `Symbol`, `String`, subtypes of `Number`,
+or some type with a sensible direct conversion from `String`.
 
 Here is an example with some arguments:
 ```julia
@@ -100,7 +102,7 @@ of the name of local variable they will be stored in.
     but making sure to follow them is essential to your code running properly.
     Additionally, make sure not to declare multiple arguments using the same flags.
     Other than the reserved `-h` and `--help` flags, this will not be detected automatically
-    at compile time, and could lead to undefined behavior. 
+    during compilation, and could lead to undefined behavior. 
 
 ## Using Argument Values
 
@@ -267,10 +269,19 @@ end
 ## Leftover Arguments
 
 By default, the program will exit and print a warning if more arguments are given than the program declares.
-If you don't want this to happen, include the [`@allowextraarguments`](@ref) macro.
+If you don't want this to happen, include the [`@allowextraarguments`](@ref) macro, or use [`@positionalleftover`](@ref)
+to store the extra arguments into a variable.
 
-This can occur anywhere inside the `@...arguments` block, but the recommended placement is at the end,
-after all other help, test, and argument declarations.
+[`@allowextraarguments`](@ref) can occur anywhere inside the `@...arguments` block, but the recommended placement is at the end,
+after all other help, test, and argument declarations. [`@positionalleftover`](@ref) must be the last argument declared in the block.
+
+```julia
+@inlinearguments begin
+    ...
+    @positionalleftover String file_names "files"
+    ...
+end
+```
 
 ```julia
 @inlinearguments begin

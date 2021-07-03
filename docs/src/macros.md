@@ -29,12 +29,14 @@ Additionally, it is recommended to specify the short flag first when using multi
 
 These arguments are specified by their position in the command.
 You must specify these in your code in the same order that users are expected to enter them.
-It is important to put these after all option arguments, and specify the required positional arguments first.
+It is important to put these after all option arguments, and specify the required positional arguments first.  
+If you want to specify leftover positional arguments, they must come after all other arguments.  
 
 ```@docs
 @positionalrequired
 @positionaldefault
 @positionaloptional
+@positionalleftover
 ```
 
 ## Help Options

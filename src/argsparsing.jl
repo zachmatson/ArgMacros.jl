@@ -121,6 +121,11 @@ function _converttype!(::Type{T}, s::String, name::String)::T where T
     end
 end
 
+"Convert a vector of strings to Number type with parse or other types with direct conversions"
+function _converttype!(::Type{T}, values::Vector{String}, name::String)::Vector{T} where T
+    map(s -> _converttype!(T, s, name), values)
+end
+
 "Quit program if the value is nothing"
 function _converttype!(::Type{T}, ::Nothing, name::String)::Nothing where T
     _quit_try_help("Argument $name missing")

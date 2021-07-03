@@ -384,6 +384,39 @@ macro positionaloptional(type::Symbol, local_name::Symbol, help_name::Union{Stri
 end
 
 """
+    @positionalleftover type local_name [help_name]
+
+Get any leftover positional arguments after all other arguments have been parsed, and store in
+variable `local_name` with the type `Vector{type}`. This vector will be empty if there are no
+leftover arguments.
+
+This macro must be used after all other arguments have been declared, as positional arguments are
+read in order after all flag/option arguments have been read.  
+Using this macro means all input will be captured by this argument if not by another, so
+`@allowextraarguments` is not necesesary when this macro is used.
+`help_name` used instead of `local_name` in messages to user if specified.
+
+Must be used in `@beginarguments begin ... end` block
+
+# Example
+```julia
+@beginarguments begin
+    ...
+    @positionalleftover String file_names "files"
+    ...
+end
+```
+"""
+macro positionalleftover(type::Symbol, local_name::Symbol, help_name::Union{String, Nothing}=nothing)
+    help_name_str::String = something(help_name, String(local_name))
+    return quote
+        local $(esc(esc(local_name)))::$(esc(esc(Vector))){$(esc(esc(type)))} = 
+            _converttype!($type, splitargs, $help_name_str)
+        empty!(splitargs)
+    end   
+end
+
+"""
     @argtest argname func [desc]
 
 Apply `func` to the value stored in `argname`, printing an error message (optionally
@@ -418,6 +451,10 @@ end
 Disables the default behavior of printing a message and exiting
 the program when not all values in `ARGS` could be assigned to
 specified arguments.
+
+This will not capture any arguments, use `@positionalleftover`
+if you want to capture extra arguments that could not otherwise
+be assigned.
 
 Must be used in `@beginarguments begin ... end` block
 

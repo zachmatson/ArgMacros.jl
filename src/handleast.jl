@@ -15,13 +15,14 @@ end
 
 """
 Enforce argument declaration ordering:  
-    Flagged → Required Positional → Optional Positional
+    Flagged → Required Positional → Optional Positional → Leftover Positional
 
 Throw `ArgumentError` if ordering violates this rule.
 """
 function _validateorder(block::Expr)
     encountered_positional = false
     encoundered_optional_positional = false
+    encountered_leftover_positional = false
     
     for arg in _getmacrocalls(block)
         # Fix namespace issues
@@ -44,6 +45,16 @@ function _validateorder(block::Expr)
         elseif macroname in POSITIONAL_OPTIONAL_SYMBOLS
             encountered_positional = true
             encoundered_optional_positional = true
+
+            if encountered_leftover_positional
+                throw(ArgumentError(
+                    "Leftover arguments must be declared after all other arguments.\nFrom: $arg"
+                ))
+            end
+        elseif macroname == POSITIONAL_LEFTOVER_SYMBOL
+            encountered_positional = true
+            encoundered_optional_positional = true
+            encountered_leftover_positional = true
         end
     end
 end
@@ -52,12 +63,14 @@ end
 function _getargumentpair(arg::Expr)::Union{Expr, Nothing}
     macroname::Symbol = _get_macroname(arg)
 
-    if macroname in (ARGUMENT_REQUIRED_SYMBOL, POSITIONAL_REQUIRED_SYMBOL)
-        :($(arg.args[4])::$(arg.args[3]))
-    elseif macroname in (ARGUMENT_DEFAULT_SYMBOL, POSITIONAL_DEFAULT_SYMBOL)
+    if macroname in (ARGUMENT_DEFAULT_SYMBOL, POSITIONAL_DEFAULT_SYMBOL)
         :($(arg.args[5])::$(arg.args[3]))
+    elseif macroname in (ARGUMENT_REQUIRED_SYMBOL, POSITIONAL_REQUIRED_SYMBOL)
+        :($(arg.args[4])::$(arg.args[3]))
     elseif macroname in (ARGUMENT_OPTIONAL_SYMBOL, POSITIONAL_OPTIONAL_SYMBOL)
         :($(arg.args[4])::Union{$(arg.args[3]), Nothing})
+    elseif macroname == POSITIONAL_LEFTOVER_SYMBOL
+        :($(arg.args[4])::Vector{$(arg.args[3])})
     elseif macroname == ARGUMENT_FLAG_SYMBOL
         :($(arg.args[3])::Bool)
     elseif macroname == ARGUMENT_COUNT_SYMBOL

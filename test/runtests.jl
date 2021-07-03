@@ -1,4 +1,4 @@
-println("Times for 8 argument example using all macros")
+println("Times for 11 argument example using all macros")
 println("Load Time (using ArgMacros)")
 @time using ArgMacros
 using Test
@@ -6,7 +6,7 @@ using Test
 # Commands Set 1
 let
     empty!(ARGS)
-    append!(ARGS, ["TEST STRING F", "-deeee", "30", "3.14", "-b=6.28", "--cc", "ArgMacros", "-a", "2"])
+    append!(ARGS, ["TEST STRING F", "-deeee", "30", "3.14", "-b=6.28", "--cc", "ArgMacros", "-a", "2", "4", "5", "6"])
 
     println("Inline Arguments Time with Precompile")
     let
@@ -22,6 +22,7 @@ let
             @positionaldefault Int 20 g
             @argtest g (x -> x % 10 == 0)
             @positionaloptional Float64 h
+            @positionalleftover Int64 i
         end
     end
 
@@ -38,6 +39,7 @@ let
         @positionaldefault Int 20 g
         @argtest g (x -> x % 10 == 0)
         @positionaloptional Float64 h
+        @positionalleftover Int64 i
     end
 
     println("Struct Arguments Time")
@@ -54,6 +56,7 @@ let
             @positionaldefault Int 20 g
             @argtest g (x -> x % 10 == 0)
             @positionaloptional Float64 h
+            @positionalleftover Int64 i
         end
 
         argsstruct = ArgsStruct()
@@ -72,6 +75,7 @@ let
         @positionaldefault Int 20 g
         @argtest g (x -> x % 10 == 0)
         @positionaloptional Float64 h
+        @positionalleftover Int64 i
     end
 
     println("Dict Arguments Time")
@@ -87,6 +91,7 @@ let
         @positionaldefault Int 20 g
         @argtest g (x -> x % 10 == 0)
         @positionaloptional Float64 h
+        @positionalleftover Int64 i
     end
 
     @testset "Correct, All Arguments" begin
@@ -98,7 +103,8 @@ let
             @test e == 4
             @test f == "TEST STRING F"
             @test g == 30
-            @test h  == 3.14
+            @test h == 3.14
+            @test i == [4, 5, 6]
         end
 
         @testset "Struct" begin
@@ -109,7 +115,8 @@ let
             @test argsstruct.e == 4
             @test argsstruct.f == "TEST STRING F"
             @test argsstruct.g == 30
-            @test argsstruct.h  == 3.14
+            @test argsstruct.h == 3.14
+            @test argsstruct.i == [4, 5, 6]
         end
 
         @testset "Tuple" begin
@@ -120,7 +127,8 @@ let
             @test argstuple.e == 4
             @test argstuple.f == "TEST STRING F"
             @test argstuple.g == 30
-            @test argstuple.h  == 3.14
+            @test argstuple.h == 3.14
+            @test argstuple.i == [4, 5, 6]
         end
 
         @testset "Dict" begin
@@ -131,7 +139,8 @@ let
             @test argsdict[:e] == 4
             @test argsdict[:f] == "TEST STRING F"
             @test argsdict[:g] == 30
-            @test argsdict[:h]  == 3.14
+            @test argsdict[:h] == 3.14
+            @test argsdict[:i] == [4, 5, 6]
         end
     end
 end
@@ -153,6 +162,7 @@ let
         @positionaldefault Int 20 g
         @argtest g (x -> x % 10 == 0)
         @positionaloptional Float64 h
+        @positionalleftover Int64 i
     end
 
     @structarguments false ArgsStruct begin
@@ -167,6 +177,7 @@ let
         @positionaldefault Int 20 g
         @argtest g (x -> x % 10 == 0)
         @positionaloptional Float64 h
+        @positionalleftover Int64 i
     end
 
     argsstruct = ArgsStruct()
@@ -183,6 +194,7 @@ let
         @positionaldefault Int 20 g
         @argtest g (x -> x % 10 == 0)
         @positionaloptional Float64 h
+        @positionalleftover Int64 i
     end
 
     argsdict = @dictarguments begin
@@ -197,6 +209,7 @@ let
         @positionaldefault Int 20 g
         @argtest g (x -> x % 10 == 0)
         @positionaloptional Float64 h
+        @positionalleftover Int64 i
     end
 
     @testset "Correct, Minimal Arguments" begin
@@ -209,6 +222,7 @@ let
             @test f == "OTHER TEST STRING F"
             @test g == 20
             @test isnothing(h)
+            @test isempty(i)
         end
 
         @testset "Struct" begin
@@ -220,6 +234,7 @@ let
             @test argsstruct.f == "OTHER TEST STRING F"
             @test argsstruct.g == 20
             @test isnothing(argsstruct.h)
+            @test isempty(argsstruct.i)
         end
 
         @testset "Tuple" begin
@@ -231,6 +246,7 @@ let
             @test argstuple.f == "OTHER TEST STRING F"
             @test argstuple.g == 20
             @test isnothing(argstuple.h)
+            @test isempty(argstuple.i)
         end
 
         @testset "Dict" begin
@@ -242,6 +258,7 @@ let
             @test argsdict[:f] == "OTHER TEST STRING F"
             @test argsdict[:g] == 20
             @test isnothing(argsdict[:h])
+            @test isempty(argsdict[:i])
         end
     end
 end

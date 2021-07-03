@@ -8,6 +8,7 @@ function _precompile_()
     arg_types = (Float64, Float32, Int64, Int32, String, Symbol)
     for T in arg_types
         Base.precompile(Tuple{typeof(ArgMacros._converttype!),Type{T},String,String})
+        Base.precompile(Tuple{typeof(ArgMacros._converttype!),Type{T},Vector{String},String})
         Base.precompile(Tuple{typeof(ArgMacros._converttype!),Type{T},Nothing,String})
         for T2 in arg_types
             Base.precompile(Tuple{typeof(ArgMacros._converttype!),Type{T},T2,String})
