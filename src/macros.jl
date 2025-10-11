@@ -29,14 +29,14 @@ macro inlinearguments(block::Expr)
     _validateorder(block) # Validate ordering of macros
 
     return quote
-        splitargs = _split_arguments($(esc(:ARGS))) # Consumed by the macros in the block
-        allowextraargs = false
+        $(esc(:splitargs)) = _split_arguments($(esc(:ARGS))) # Consumed by the macros in the block
+        $(esc(:allowextraargs)) = false
 
-        _help_check(splitargs, $(Expr(:quote, block))) # End and print help if needed
+        _help_check($(esc(:splitargs)), $(Expr(:quote, block))) # End and print help if needed
 
         $block
 
-        if !allowextraargs && !isempty(splitargs)
+        if !$(esc(:allowextraargs)) && !isempty($(esc(:splitargs)))
             _quit_try_help("Too many or unrecognized arguments provided")
         end
     end
@@ -184,7 +184,7 @@ macro argumentrequired(type::Symbol, local_name::Symbol, flags::String...)
     _validateflags(local_name, flags)
     return quote
         #  _converttype! is completely type safe
-        local $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!($type, _pop_argval!(splitargs, [$flags...]), $(flags[end]))
+        local $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!($type, _pop_argval!($(esc(esc(:splitargs))), [$flags...]), $(flags[end]))
     end
 end
 
@@ -210,7 +210,7 @@ end
 macro argumentdefault(type::Symbol, default_value, local_name::Symbol, flags::String...)
     _validateflags(local_name, flags)
     return quote
-        potential_val::Union{String, Nothing} = _pop_argval!(splitargs, [$flags...])
+        potential_val::Union{String, Nothing} = _pop_argval!($(esc(esc(:splitargs))), [$flags...])
         # Convert either potential or the default value, allows default to be specified with wrong literal type
         local $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!($type, something(potential_val, $default_value), $(flags[end]))
     end
@@ -237,7 +237,7 @@ end
 macro argumentoptional(type::Symbol, local_name::Symbol, flags::String...)
     _validateflags(local_name, flags)
     return quote
-        potential_val::Union{String, Nothing} = _pop_argval!(splitargs, [$flags...])
+        potential_val::Union{String, Nothing} = _pop_argval!($(esc(esc(:splitargs))), [$flags...])
         # Return nothing directly without calling _converttype! if arg not found
         local $(esc(esc(local_name)))::$(esc(esc(Union))){$(esc(esc(type))), $(esc(esc(Nothing)))} =
             isnothing(potential_val) ? nothing : _converttype!($type, potential_val, $(flags[end]))
@@ -264,7 +264,7 @@ end
 macro argumentflag(local_name::Symbol, flags::String...)
     _validateflags(local_name, flags)
     return quote
-        local $(esc(esc(local_name)))::$(esc(esc(Bool))) = _pop_flag!(splitargs, [$flags...])
+        local $(esc(esc(local_name)))::$(esc(esc(Bool))) = _pop_flag!($(esc(esc(:splitargs))), [$flags...])
     end
 end
 
@@ -286,7 +286,7 @@ end
 """
 macro argumentcount(local_name::Symbol, flag::String)
     return quote
-        local $(esc(esc(local_name)))::$(esc(esc(Int))) = _pop_count!(splitargs, $flag)
+        local $(esc(esc(local_name)))::$(esc(esc(Int))) = _pop_count!($(esc(esc(:splitargs))), $flag)
     end
 end
 
@@ -316,7 +316,7 @@ macro positionalrequired(type::Symbol, local_name::Symbol, help_name::Union{Stri
     return quote
         local $(esc(esc(local_name)))::$(esc(esc(type))) = _converttype!(
             $type,
-            !isempty(splitargs) ? popfirst!(splitargs) : nothing,
+            !isempty($(esc(esc(:splitargs)))) ? popfirst!($(esc(esc(:splitargs)))) : nothing,
             $help_name_str
         )
     end
@@ -349,7 +349,7 @@ macro positionaldefault(type::Symbol, default_value, local_name::Symbol, help_na
     return quote
         local $(esc(esc(local_name)))::$(esc(esc(type))) =_converttype!(
             $type,
-            !isempty(splitargs) ? popfirst!(splitargs) : $default_value,
+            !isempty($(esc(esc(:splitargs)))) ? popfirst!($(esc(esc(:splitargs)))) : $default_value,
             $help_name_str
         )
     end
@@ -379,7 +379,7 @@ macro positionaloptional(type::Symbol, local_name::Symbol, help_name::Union{Stri
     help_name_str::String = something(help_name, String(local_name))
     return quote
         local $(esc(esc(local_name)))::$(esc(esc(Union))){$(esc(esc(type))), $(esc(esc(Nothing)))} =
-            !isempty(splitargs) ? _converttype!($type, popfirst!(splitargs), $help_name_str) : nothing
+            !isempty($(esc(esc(:splitargs)))) ? _converttype!($type, popfirst!($(esc(esc(:splitargs)))), $help_name_str) : nothing
     end
 end
 
@@ -411,8 +411,8 @@ macro positionalleftover(type::Symbol, local_name::Symbol, help_name::Union{Stri
     help_name_str::String = something(help_name, String(local_name))
     return quote
         local $(esc(esc(local_name)))::$(esc(esc(Vector))){$(esc(esc(type)))} = 
-            _converttype!($type, splitargs, $help_name_str)
-        empty!(splitargs)
+            _converttype!($type, $(esc(esc(:splitargs))), $help_name_str)
+        empty!($(esc(esc(:splitargs))))
     end   
 end
 
@@ -468,6 +468,6 @@ end
 """
 macro allowextraarguments()
     return quote
-        allowextraargs = true
+        $(esc(esc(:allowextraargs))) = true
     end
 end
