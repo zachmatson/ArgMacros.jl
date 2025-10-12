@@ -28,7 +28,7 @@ Install ArgMacros using Julia's Pkg package manager. Enter the Pkg prompt
 by typing `]` at the REPL and then install:
 
 ```julia-repl
-(@v1.5) pkg> add ArgMacros
+(@v1.12) pkg> add ArgMacros
 ```
 
 Then load ArgMacros into your script with `using ArgMacros`.
