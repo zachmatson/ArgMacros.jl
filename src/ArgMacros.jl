@@ -22,6 +22,7 @@ export @positionalrequired, @positionaldefault, @positionaloptional,
 export @arghelp, @argtest, @allowextraarguments
 
 include("constants.jl")
+include("exit.jl")
 include("handleast.jl")
 include("help.jl")
 include("argsparsing.jl")

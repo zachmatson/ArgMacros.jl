@@ -263,34 +263,83 @@ let
     end
 end
 
-# Should Create non-zero exit codes
+# Error to capture code from a mocked exit
+struct TestExitError <: Exception
+    code::Int
+end
+
+# Run ArgMacros code with `exit()` mocked
+macro test_exit_code(block::Expr)
+    quote
+        code = -1 # Return -1 if we never exit
+        original_exit_function = ArgMacros._exit_function
+
+        try
+            ArgMacros._exit_function = (code::Int) -> throw(TestExitError(code))
+            $(esc(block))
+        catch e
+            if e isa TestExitError
+                code = e.code
+            else
+                throw(e)
+            end
+        finally
+            ArgMacros._exit_function = original_exit_function
+        end
+
+        code
+    end
+end
+
+function exits_with_error(args)
+    empty!(ARGS)
+    append!(ARGS, args)
+
+    code = @test_exit_code begin
+        @inlinearguments begin
+            @argumentrequired Int a "-a" "--aa"
+            @argtest a (<(10))
+            @argumentdefault Float64 10 b "-b"
+            @argumentoptional Symbol c "--cc"
+            @argumentflag d "-d"
+            @argumentcount e "-e"
+
+            @positionalrequired String f
+            @positionaldefault Int 20 g
+            @argtest g (x -> x % 10 == 0)
+            @positionaloptional Float64 h
+        end
+    end
+
+    code > 0
+end
+
 @testset "Incorrect Arguments Rejected" begin
-    # Make sure the test script is set up and working with correct args
-    @test success(`julia --project=.. get_args_no_fail_at_exit.jl -- "TEST STRING F" -deeee 30 3.14 -b=6.28 --cc ArgMacros -a 2`)
+    # Double-check that everything works when using the correct args
+    @test !exits_with_error(["TEST STRING F", "-deeee", "30", "3.14", "-b=6.28", "--cc", "ArgMacros", "-a", "2"])
     # These should fail
-    @test !success(`julia --project=.. get_args_no_fail_at_exit.jl -- 30 3.14 -d -eeee -b 6.28 --cc ArgMacros -a 2`)
-    @test !success(`julia --project=.. get_args_no_fail_at_exit.jl -- TEST STRING F 30 3.14 -d -eeee -b 6.28 --cc ArgMacros -a 2`)
-    @test !success(`julia --project=.. get_args_no_fail_at_exit.jl -- "TEST STRING F" 23.3 3.14 -d -eeee -b 6.28 --cc ArgMacros -a 2`)
-    @test !success(`julia --project=.. get_args_no_fail_at_exit.jl -- "TEST STRING F" -eeee 25 3.14 -d -b 6.28 --cc ArgMacros -a 2`)
-    @test !success(`julia --project=.. get_args_no_fail_at_exit.jl -- "TEST STRING F" 30 cat -deeee -b=6.28 --cc ArgMacros -a 2`)
-    @test !success(`julia --project=.. get_args_no_fail_at_exit.jl -- "TEST STRING F" 30 3.14 -deeee -b=dog --cc ArgMacros -a 2`)
-    @test !success(`julia --project=.. get_args_no_fail_at_exit.jl -- "TEST STRING F" 30 3.14 -deeee -b=6.28 --cc ArgMacros -a bird`)
-    @test !success(`julia --project=.. get_args_no_fail_at_exit.jl -- "TEST STRING F" 30 3.14 -deeee -b=6.28 --cc ArgMacros`)
+    @test exits_with_error(["30", "3.14", "-d", "-eeee", "-b", "6.28", "--cc", "ArgMacros", "-a", "2"])
+    @test exits_with_error(["TEST", "STRING", "F", "30", "3.14", "-d", "-eeee", "-b", "6.28", "--cc", "ArgMacros", "-a", "2"])
+    @test exits_with_error(["TEST STRING F", "23.3", "3.14", "-d", "-eeee", "-b", "6.28", "--cc", "ArgMacros", "-a", "2"])
+    @test exits_with_error(["TEST STRING F", "-eeee", "25", "3.14", "-d", "-b", "6.28", "--cc", "ArgMacros", "-a", "2"])
+    @test exits_with_error(["TEST STRING F", "30", "cat", "-deeee", "-b=6.28", "--cc", "ArgMacros", "-a", "2"])
+    @test exits_with_error(["TEST STRING F", "30", "3.14", "-deeee", "-b=dog", "--cc", "ArgMacros", "-a", "2"])
+    @test exits_with_error(["TEST STRING F", "30", "3.14", "-deeee", "-b=6.28", "--cc", "ArgMacros", "-a", "bird"])
+    @test exits_with_error(["TEST STRING F", "30", "3.14", "-deeee", "-b=6.28", "--cc", "ArgMacros"])
 
 end
 
 @testset "Help Triggered Properly" begin
-    # Make sure the test script is set up and working with correct args
-    @test  success(`julia --project=.. get_args_no_fail_at_exit.jl -- "TEST STRING F" -deeee 30 3.14 -b=6.28 --cc ArgMacros -a 2`)
-    @test !success(`julia --project=.. get_args_fail_at_exit.jl    -- "TEST STRING F" -deeee 30 3.14 -b=6.28 --cc ArgMacros -a 2`)
-    # These will fail on purpose if not exited early with code 0
-    # We want help to trigger, so they should successfully exit early and not fail
-    @test success(`julia --project=.. get_args_fail_at_exit.jl -- "TEST STRING F" 30 3.14 --help -deeee -b=6.28 --cc ArgMacros -a 2`)
-    @test success(`julia --project=.. get_args_fail_at_exit.jl -- "TEST STRING F" 30 -h 3.14 -deeee -b=dog --cc ArgMacros -a 2`)
-    @test success(`julia --project=.. get_args_fail_at_exit.jl -- --help`)
+    # Checking that something that would otherwise fail does not fail when help is requested
+    @test exits_with_error(["30", "3.14", "-d", "-eeee", "-b", "6.28", "--cc", "ArgMacros", "-a", "2"])
+    @test !exits_with_error(["30", "3.14", "--help", "-d", "-eeee", "-b", "6.28", "--cc", "ArgMacros", "-a", "2"])
+    @test !exits_with_error(["30", "3.14", "-h", "-d", "-eeee", "-b", "6.28", "--cc", "ArgMacros", "-a", "2"])
+    @test exits_with_error([])
+    @test !exits_with_error(["--help"])
+    @test !exits_with_error(["-h"])
 end
 
 println("Time for 8 argument script cold launch and parsing including Julia start")
-@time run(`julia --project=.. get_args_no_fail_at_exit.jl -- "TEST STRING F" -deeee 30 3.14 -b=6.28 --cc ArgMacros -a 2`)
+@time run(`julia --project=.. parse_example_args.jl "TEST STRING F" -deeee 30 3.14 -b=6.28 --cc ArgMacros -a 2`)
 println("Time for Julia start only")
 @time run(`julia --project=.. blank_script.jl`)
