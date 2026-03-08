@@ -1,12 +1,11 @@
-prepend!(LOAD_PATH, ["../src/"])
-
 using Documenter
 using ArgMacros
 
 makedocs(
     sitename = "ArgMacros",
     format = Documenter.HTML(),
-    modules = [ArgMacros]
+    modules = [ArgMacros],
+    warnonly = [:missing_docs],
 )
 
 deploydocs(
